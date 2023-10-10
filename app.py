@@ -4,7 +4,6 @@ import json
 import openai
 import tiktoken
 from flask_cors import CORS
-from flask import Markup
 
 config = ""
 with open('./config/config.json') as f:
@@ -40,7 +39,6 @@ AIが質問を出し、回答の選択肢を設けます。ユーザーが選択
 -その人の性格を体現した歌や作品を紹介します。回答者のよく知っているジャンルのものを重点的に紹介します。\n
 -他の指標に基づいた性格や恋愛傾向の結果も表示されます。\n
 -診断結果から分かることを解説します。\n
--結果を提示した上で、ユーザーに続けて診断するかどうかを尋ねます。続ける場合はまたユーザーには10個質問を提示し、その都度10個の回答を得て分析結果が表示し、診断の継続意思を問うことを繰り返します。\n
 \n
 分析する指標:\n
 ソシオニクスの16タイプやエニアグラムのタイプ、恋愛傾向、心理機能の強弱、自己肯定感、診断結果の信頼度などを取得します。\n
@@ -81,11 +79,8 @@ def result():
 
     conversation_history.append({"role": "user", "content": answer})
     response = chat_completion(conversation_history)
-    conversation_history.append({"role": "assistant", "content": response})
 
     print("conversation_history:", conversation_history)
-
-    response = Markup(response.replace("\n", "<br/>"))
 
     return json.dumps({'response':response})
 
@@ -107,4 +102,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run() 
+    app.run(host="0.0.0.0")

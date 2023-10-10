@@ -2,51 +2,114 @@ import React, { Component, ReactElement } from 'react';
 import axios from 'axios';
 
 interface iState {
-  questions:any
-  result: string;
+  questions:Array<{type:string, label:string, name:string, value:string}>
+  response: string
+  result: string
+  msg: string
+  btn: string
 }
 
 class App extends Component<{}, iState> {
 
+  mounted:boolean = false
+
   constructor(state:iState) {
     super(state);
     this.state = {
-      questions: null,
-      result: ""
+      questions: [],
+      response: "",
+      result: "",
+      msg: "",
+      btn: "hide"
     }
   }
 
-  submit = () => {
-    alert("submit")
-  }
-  componentDidMount() {
-    (async()=> {
-      console.log("async");
-      //const data = await axios.get('http://localhost:5000/questions', {timeout:300000})
-      //console.log(data)
+  submit = async() => {
+    let answer = ""
+    const radios:HTMLCollectionOf<HTMLInputElement>|undefined 
+      = document.getElementById("questions")?.getElementsByTagName("input")
 
-      const myData = [
-        {key: 1, name: "Hello"},
-        {key: 2, name: "World"},
-        {key: 3, name: "etc"}
-      ];
-      const questions:any[] = []
-      myData.forEach((d, i) => {
-        console.log(d)
-        questions.push(<input type='radio' value={d.name}></input><label>{d.name}</label>)
-        /*
-        radio.type = "radio"
-        radio.id = d.name
-        radio.value = d.name
-
-        const label = document.createElement("label")
-        label.innerHTML = d.name
-        
-        document.getElementById("questions")?.appendChild(radio)
-        document.getElementById("questions")?.appendChild(label)
-        */
+    if(radios) {
+      Array.from(radios).forEach((radio) => {
+        if(radio.checked) {
+          answer += radio.value
+        }
       })
-      this.setState({questions})
+    }
+    console.log(answer)
+    try {
+      this.setState({btn:"disable"})
+      const data = await axios.get('http://localhost:5000/result', {timeout:300000, params: {answer}})
+      this.setState({result: data.data.response})
+    } catch (e) {
+      this.setState({btn:"show"})
+      this.setState({result: "エラーが発生しました"})
+    }
+  }
+
+  isQuestion(line:string) {
+    if(line.startsWith("質問") && line.slice(-1) == "？") {
+      return true
+    }
+  
+    const pattern = /^[0-9|０-９]/
+    return pattern.test(line) && line.slice(-1) == "？"
+  }
+
+  renderBtn = (state: string) => {
+    if (state == "show") {
+      return <div><button id="submit" onClick={this.submit}>送信</button><br/></div>
+    } else if(state == "disable") {
+      return <div><button id="submit" onClick={this.submit} disabled>送信</button><br/></div>
+    } else {
+      return
+    }
+  }
+
+  renderQuestion = (response:string) => {
+    let label_v = ""
+    const lines = response.split("\n")
+
+    return lines.map((line:any,i:number) => {
+      if(this.isQuestion(line)) {
+        label_v = line
+        return (<div><p>{line}</p></div>)
+      } else if(i == 0 || line.length == 0 || i+1 == lines.length) {
+        return (<div><p>{line}</p></div>)
+      }
+
+      return (
+        <div>
+          <input type='radio' value={label_v+line+"\n"} name={label_v}></input>
+          <label>{line}</label>
+        </div>
+      )
+    })
+  }
+
+  componentDidMount() {
+    if(this.mounted) return;
+    this.mounted = true;
+
+    (async()=> {
+      let lines = []
+      let response = ""
+      while(true) {
+        const data = await axios.get('http://localhost:5000/questions', {timeout:300000})
+        console.log(data)
+          try {
+          lines = data.data.response.split("\n")
+          if(lines.length >= 30) {
+            response = data.data.response
+            break
+          }
+        } catch (error) {
+          this.setState({msg:"エラーが発生しました"})
+          return
+        }
+      }
+      this.setState({response: response})
+      this.setState({btn:"show"})
     })()
   }
   render(): React.ReactNode {
@@ -77,12 +140,19 @@ class App extends Component<{}, iState> {
         ---------
         <br/>
         <div id="questions">
+          {this.renderQuestion(this.state.response)}
         </div>
-        <button id="submit" onClick={this.submit} style={{display:"none"}}>送信</button><br/>
+        {this.renderBtn(this.state.btn)}
+        <br/>
         <br/>
         --分析結果--<br/>
         <br/>
         <div>
+          {
+            this.state.result.split("\n").map((line) => {
+              return (<p>{line}</p>)
+            })
+          }
         </div>
       </div>
     );
