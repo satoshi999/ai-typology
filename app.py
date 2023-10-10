@@ -6,7 +6,7 @@ import tiktoken
 from flask import Markup
 
 config = ""
-with open('../config/config.json') as f:
+with open('./config/config.json') as f:
     config = json.load(f)
 
 app = Flask(__name__)
