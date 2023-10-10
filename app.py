@@ -3,15 +3,19 @@ from flask import Flask, request, render_template
 import json
 import openai
 import tiktoken
+from flask_cors import CORS
 from flask import Markup
 
 config = ""
-with open('../config/config.json') as f:
+with open('./config/config.json') as f:
     config = json.load(f)
 
 app = Flask(__name__)
+CORS(app)
 
-openai.api_key = config.openai_key
+openai.api_key = config["openai_key"]
+
+question_n = config["question_n"]
 
 conversation_history = []
 
@@ -46,7 +50,7 @@ AIが質問を出し、回答の選択肢を設けます。ユーザーが選択
 恋愛傾向の場合、恋愛タイプや好きなタイプ、相性のいいタイプなどを分析します。\n
 -心理機能の強弱の場合、ソシオニクスの8つの心理機能(Se,Si,Ne,Ni,Te,Ti,Fe,Fi)の強さを0点~100点で測定します。-自己肯定感の場合、人生の充実度や不安感や自信について測定します。-診断結果の信頼度は、回答者の回答の矛盾の大きさを調べ、信頼できる結果が出たかを点数化します。-他の性格傾向の指標についても調べていきます。-その人の性格を体現した歌や作品を調べます。回答者のよく知っているジャンルについても調べます。\n
 \n
-では始めてほしい。{}個まとめて質問を提示し、それぞれ回答の選択肢を設けてください""".format(config.question_n)
+では始めてほしい。{}個まとめて質問を提示し、それぞれ回答の選択肢を設けてください""".format(question_n, question_n)
 
 
 def chat_completion(history):
