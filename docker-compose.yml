@@ -1,0 +1,18 @@
+version: '3'
+services:
+  front:
+    image: node:18.7.0
+    working_dir: /home/app
+    volumes:
+     - ./front:/home/app
+    ports:
+      - 3000:3000
+    command: sh -c 'npm start'
+  gpt:
+    image: python:3.8.9
+    working_dir: /home/app
+    volumes:
+     - .:/home/app
+    ports:
+      - 5000:5000
+    command: sh -c 'pip3 install -r requirements.txt && python3 app.py'
