@@ -1,3 +1,13 @@
 front/node_modules
 **/.DS_Store
 config/config.json
+
+#  Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars

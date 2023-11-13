@@ -1,0 +1,6 @@
+project="ai-typology"
+aws_profile="ecr"
+aws_region="ap-northeast-1"
+ecs_task_execution_role=""
+vpc_id=""
+subnet=""
