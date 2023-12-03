@@ -1,12 +1,3 @@
-variable aws_profile {}
-variable aws_region {}
-variable project {}
-
-provider "aws" {
-  profile = var.aws_profile
-  region = var.aws_region
-}
-
 # ECR
 resource "aws_ecr_repository" "gpt" {
   name = "${var.project}-gpt"
