@@ -8,6 +8,6 @@ Resources:
         LoadBalancerInfo:
           ContainerName: "ai-typology"
           ContainerPort: 5000
-        PlatformVersion: "LATEST"
+        PlatformVersion: "1.4.0"
 
 Hooks: []
