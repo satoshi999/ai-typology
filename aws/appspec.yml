@@ -9,3 +9,5 @@ Resources:
           ContainerName: "ai-typology"
           ContainerPort: 5000
         PlatformVersion: "LATEST"
+
+Hooks: []
