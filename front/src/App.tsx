@@ -115,7 +115,7 @@ class App extends Component<{}, iState> {
   render(): React.ReactNode {
     return (
       <div>
-        「AI性格診断」(ver1.02)<br/>
+        「AI性格診断」(ver1.03)<br/>
         <br/>
         1.進め方の概要:<br/>
         - AIが質問を出し、回答の選択肢を設けます。ユーザーが選択肢の番号を選んで回答します。<br/>
