@@ -1,11 +1,6 @@
 # ECR
-resource "aws_ecr_repository" "gpt" {
-  name = "${var.project}-gpt"
-  force_delete = true
-}
-
-resource "aws_ecr_repository" "front" {
-  name = "${var.project}-front"
+resource "aws_ecr_repository" "main" {
+  name = "ai-typology"
   force_delete = true
 }
 

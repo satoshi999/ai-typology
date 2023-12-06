@@ -1,14 +1,8 @@
 # SECURITY GROUP
 resource "aws_security_group" "ecs" {
-  name        = "${var.project}-ecs"
-  description = "${var.project}-ecs"
+  name        = "ai-typology-ecs"
+  description = "ai-typology-ecs"
   vpc_id      = var.vpc_id
-
-  ingress {
-    from_port        = 3000
-    to_port          = 3000
-    protocol         = "tcp"
-  }
 
   ingress {
     from_port        = 5000
@@ -25,33 +19,24 @@ resource "aws_security_group" "ecs" {
   }
 
   tags = {
-    Name = "${var.project}-ecs"
+    Name = "ai-typology-ecs"
   }
 }
 
-resource "aws_security_group_rule" "front_from_alb" {
+resource "aws_security_group_rule" "main" {
   type                     = "ingress"
-  to_port                  = 3000
+  to_port                  = 5000
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.alb.id
   from_port                = 80
   security_group_id        = aws_security_group.ecs.id
 }
 
-resource "aws_security_group_rule" "gpt_from_alb" {
-  type                     = "ingress"
-  to_port                  = 5000
-  protocol                 = "tcp"
-  source_security_group_id = aws_security_group.alb.id
-  from_port                = 5000
-  security_group_id        = aws_security_group.ecs.id
-}
-
 # TASK
 resource "aws_ecs_task_definition" "main" {
-  depends_on = [aws_ecr_repository.front, aws_ecr_repository.gpt]
+  depends_on = [aws_ecr_repository.main]
 
-  family = var.project
+  family = "ai-typology"
 
   requires_compatibilities = ["FARGATE"]
   network_mode = "awsvpc"
@@ -63,21 +48,8 @@ resource "aws_ecs_task_definition" "main" {
 
   container_definitions = jsonencode([
     {
-      name      = "${var.project}-front"
-      image     = aws_ecr_repository.front.repository_url
-      cpu       = 1024
-      memory    = 1024
-      essential = true
-      portMappings = [
-        {
-          containerPort = 3000
-          hostPort      = 3000
-        }
-      ]
-    },
-    {
-      name      = "${var.project}-gpt"
-      image     = aws_ecr_repository.gpt.repository_url
+      name      = "ai-typology"
+      image     = aws_ecr_repository.main.repository_url
       cpu       = 1024
       memory    = 1024
       essential = true
@@ -93,7 +65,7 @@ resource "aws_ecs_task_definition" "main" {
 
 # CLUSTER
 resource "aws_ecs_cluster" "main" {
-  name = var.project
+  name = "ai-typology"
 }
 
 resource "aws_ecs_cluster_capacity_providers" "main" {
@@ -110,7 +82,7 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 
 # SERVICE
 resource "aws_ecs_service" "main" {
-  name            = var.project
+  name            = "ai-typology"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.main.arn
   desired_count   = 1
@@ -119,16 +91,18 @@ resource "aws_ecs_service" "main" {
     security_groups  = [aws_security_group.ecs.id]
     assign_public_ip = true
   }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.front.arn
-    container_name   = "${var.project}-front"
-    container_port   = 3000
-  }
   
   load_balancer {
-    target_group_arn = aws_lb_target_group.gpt.arn
-    container_name   = "${var.project}-gpt"
+    target_group_arn = aws_lb_target_group.bg1.arn
+    container_name   = "ai-typology"
     container_port   = 5000
+  }
+
+  deployment_controller {
+    type = "CODE_DEPLOY"
+  }
+
+  lifecycle {
+    ignore_changes = [task_definition, load_balancer]
   }
 }

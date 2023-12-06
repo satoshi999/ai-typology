@@ -9,7 +9,7 @@ config = ""
 with open('./config/config.json') as f:
     config = json.load(f)
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="./front/build", static_folder='./front/build', static_url_path='')
 CORS(app)
 
 openai.api_key = config["openai_key"]
@@ -72,6 +72,10 @@ def chat_completion(history):
         message += choice.message['content']
 
     return message
+
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
 
 @app.route('/result', methods=['GET'])
 def result():              

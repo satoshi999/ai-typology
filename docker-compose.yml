@@ -1,10 +1,6 @@
 version: '3'
 services:
-  front:
-    build: ./front
-    ports:
-      - 3000:3000
-  gpt:
+  app:
     build: ./
     ports:
       - 5000:5000

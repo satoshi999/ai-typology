@@ -1,20 +1,12 @@
 # SECURITY GROUP
 resource "aws_security_group" "alb" {
-  name        = "${var.project}-alb"
-  description = "${var.project}-alb"
+  name        = "ai-typology-alb"
+  description = "ai-typology-alb"
   vpc_id      = var.vpc_id
 
   ingress {
     from_port        = 80
     to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  ingress {
-    from_port        = 5000
-    to_port          = 5000
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
@@ -29,13 +21,13 @@ resource "aws_security_group" "alb" {
   }
 
   tags = {
-    Name = "${var.project}-alb"
+    Name = "ai-typology-alb"
   }
 }
 
 # ALB
 resource "aws_lb" "main" {
-  name               = var.project
+  name               = "ai-typology"
   internal           = false
   load_balancer_type = "application"
   security_groups = [aws_security_group.alb.id]
@@ -45,13 +37,13 @@ resource "aws_lb" "main" {
   ip_address_type = "ipv4"
 
   tags = {
-    Name = var.project
+    Name = "ai-typology"
   }
 }
 
 # TARGET GROUP
-resource "aws_lb_target_group" "front" {
-  name             = "${var.project}-front"
+resource "aws_lb_target_group" "bg1" {
+  name             = "ai-typology-bg1"
   target_type      = "ip"
   protocol_version = "HTTP1"
   port             = 80
@@ -60,7 +52,7 @@ resource "aws_lb_target_group" "front" {
   vpc_id = var.vpc_id
 
   tags = {
-    Name = "${var.project}-front"
+    Name = "ai-typology"
   }
 
   health_check {
@@ -75,17 +67,17 @@ resource "aws_lb_target_group" "front" {
   }
 }
 
-resource "aws_lb_target_group" "gpt" {
-  name             = "${var.project}-gpt"
+resource "aws_lb_target_group" "bg2" {
+  name             = "ai-typology-bg2"
   target_type      = "ip"
   protocol_version = "HTTP1"
-  port             = 5000
+  port             = 80
   protocol         = "HTTP"
 
   vpc_id = var.vpc_id
 
   tags = {
-    Name = "${var.project}-gpt"
+    Name = "ai-typology"
   }
 
   health_check {
@@ -101,24 +93,13 @@ resource "aws_lb_target_group" "gpt" {
 }
 
 # LISTENER
-resource "aws_lb_listener" "front" {
+resource "aws_lb_listener" "main" {
   load_balancer_arn = aws_lb.main.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.front.arn
-  }
-}
-
-resource "aws_lb_listener" "gpt" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = "5000"
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.gpt.arn
+    target_group_arn = aws_lb_target_group.bg1.arn
   }
 }

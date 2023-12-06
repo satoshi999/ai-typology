@@ -39,7 +39,7 @@ class App extends Component<{}, iState> {
     console.log(answer)
     try {
       this.setState({btn:"disable"})
-      const data = await axios.get(`http://${location.hostname}:5000/result`, {timeout:300000, params: {answer}})
+      const data = await axios.get(`http://${window.location.hostname}:5000/result`, {timeout:300000, params: {answer}})
       this.setState({result: data.data.response})
     } catch (e) {
       this.setState({btn:"show"})
@@ -95,7 +95,7 @@ class App extends Component<{}, iState> {
       let lines = []
       let response = ""
       while(true) {
-        const data = await axios.get(`http://${location.hostname}:5000/questions`, {timeout:300000})
+        const data = await axios.get(`http://${window.location.hostname}:5000/questions`, {timeout:300000})
         console.log(data)
           try {
           lines = data.data.response.split("\n")

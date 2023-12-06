@@ -4,4 +4,3 @@ variable subnet1 {}
 variable subnet2 {}
 variable aws_profile {}
 variable aws_region {}
-variable project {}
