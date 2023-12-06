@@ -54,6 +54,6 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: ai-typology
           cluster: ai-typology
-          codedeploy-appspec: aws/appspec.yaml
+          codedeploy-appspec: aws/appspec.yml
           codedeploy-application: ai-typology
           codedeploy-deployment-group: ai-typology
