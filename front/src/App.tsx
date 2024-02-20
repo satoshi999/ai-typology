@@ -48,7 +48,7 @@ class App extends Component<{}, iState> {
   }
 
   isQuestion(line:string) {
-    if(line.startsWith("質問") && line.slice(-1) == "？") {
+    if(line.startsWith("質問") || line.slice(-1) == "？") {
       return true
     }
   
